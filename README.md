@@ -7,6 +7,8 @@ Honeyfile deployment is a useful breach detection method in cyber deception that
 
 ## Code requirements
 
+We used Python 3.5.6 and the required packages are listed in `requirements.txt`
+
 Run the following script subsequently:
 
 ```bash
