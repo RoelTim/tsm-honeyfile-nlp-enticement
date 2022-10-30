@@ -1,6 +1,14 @@
-# tsm-honeyfile-nlp-enticement
-Honeyfile dataset &amp; TSM enticement algorithm
+Run the following 5 script subsequently:
+* python src/preprocess_files.py
+* python src/categorise_local_context_files.py
+* python src/get_topics.py
+* python src/tsm.py
+* notebook/visualisations_tsm_paper.ipynb
 
-The code and dataset used for the paper "Timmer, R., Liebowitz, D., Nepal, S., & Kanhere, S. (2022). TSM: Measuring the Enticement of Honeyfiles with Natural Language Processing." is available upon request. 
-
-Email: r.timmer@unsw.edu.au
+Citation:
+@inProceedings{timmer2022tsm,
+  title={TSM: Measuring the Enticement of Honeyfiles with Natural Language Processing},
+  author={Timmer, Roelien and Liebowitz, David and Nepal, Surya and Kanhere, Salil},
+  booktitle={Proc. the 55th Hawaii Int. Conf. Syst. Sci.},
+  year={2022}
+}
