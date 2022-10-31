@@ -1,9 +1,15 @@
-import os, glob, 
-, docx, json
-# Preprocess Deception and Local Context Files with Spacy
-# remove stop words, punctuation, numbers
-# apply lemmatisation
-# apply named-entity recognition (NER)
+"""
+Preprocess Deception and Local Context Files with Spacy
+* remove stop words, punctuation, numbers
+* apply lemmatisation
+* apply named-entity recognition (NER)
+"""
+
+import os
+import glob
+import json
+import docx
+import spacy
 
 class EntityRetokenizeComponent:
     """ merges tokens that are entities """
@@ -13,24 +19,60 @@ class EntityRetokenizeComponent:
         with doc.retokenize() as retokenizer:
             for ent in doc.ents:
                 retokenizer.merge(doc[ent.start:ent.end],
-                                  attrs = {"LEMMA": str(doc[ent.start:ent.end])})
+                                  attrs={"LEMMA": str(doc[ent.start:ent.end])})
         return doc
 
-def preprocess_deception_files():
-    print('start preprocessing deception files')
-    path_this_file = os.path.dirname(os.path.abspath(__file__))    
-    path_deception_files = os.path.abspath(os.path.join(path_this_file,'..', 'data/raw/honeyfiles'))
-    dec_files = glob.glob(path_deception_files + '/**/*.docx', recursive=True)
-    #output_file = os.path.abspath(os.path.join(path_this_file,'..', 'data/processed/preprocessed_text.txt'))
-    nlp = spacy.load("en_core_web_sm") #!python -m spacy download en_core_web_sm, we use the "en_core_web_sm" model of Spacy, because there is (currently) a bug in "en_core_web_lg" to select stop words.
+def get_category(file_path):
+    """
+    define category of file based on file_path
+    """
+    if 'theater' in file_path:
+        category = 'theater'
+    elif 'plants' in file_path:
+        category = 'plants'
+    elif 'computer' in file_path:
+        category = 'computer'
+    elif 'customs' in file_path or 'abfnotices' in file_path:
+        category = 'customs'
+    else:
+        category = 'unknown'
+    return category
+
+def nlp_preprocess_steps(text):
+    """
+    remove stop words, punctuation, numbers
+    apply lemmatisation
+    apply named-entity recognition (NER)
+    """
+    nlp = spacy.load("en_core_web_sm")
     nlp.add_pipe(EntityRetokenizeComponent(nlp))
+    text = text.lower()
+    tokens = nlp(text)
+    processed_text = []
+    for sen in tokens.sents:
+        sen = str(sen)
+        nlp_sen = nlp(sen)
+        sent = []
+        for token in nlp_sen:
+            if token.pos_ != 'PUNCT' and token.pos_ != 'NUM':
+                if not token.is_stop and len(token) > 2 and '\n' not in token.lemma_:
+                    sent.append(str(token.lemma_))
+        processed_text.append(sent)
+    return processed_text
+
+def preprocess_deception_files():
+    """ preprocess deception files """
+    print('start preprocessing deception files')
+    path_this_file = os.path.dirname(os.path.abspath(__file__))
+    path_dec_files = os.path.abspath(os.path.join(path_this_file, '..', 'data/raw/honeyfiles'))
+    dec_files = glob.glob(path_dec_files + '/**/*.docx', recursive=True)
     decep_files = {}
     for dec_file in dec_files:
         doc = docx.Document(dec_file)
-        fullText = []
+        full_text = []
         for para in doc.paragraphs:
-            fullText.append(para.text)
-        decep_files[dec_file] = '\n'.join(fullText) 
+            full_text.append(para.text)
+        decep_files[dec_file] = '\n'.join(full_text)
 
     doc2vec_text = {}
     lda_text = {}
@@ -38,99 +80,62 @@ def preprocess_deception_files():
     preprocessed_text = {}
 
     for count, (i, j) in enumerate(decep_files.items()):
-        if count % 100 == 0: print(count, ' of ', len(decep_files))
-        j = j.lower()
-        tokens = nlp(j)
-        processed_text = []
-        for ar in tokens.sents:
-            ar = str(ar)
-            x = nlp(ar)
-            art = []
-            for token in x:
-                if token.pos_ != 'PUNCT' and token.pos_ != 'NUM':
-                    if token.is_stop == False and len(token)>2 and '\n' not in token.lemma_: #remove stopwords short characters
-                        art.append(str(token.lemma_)) #lemmatisation
-            processed_text.append(art)
+        if count % 100 == 0:
+            print(count, ' of ', len(decep_files))
+        processed_text = nlp_preprocess_steps(j)
         sbmtm = [item for sublist in processed_text for item in sublist]
-
         doc2vec_text[i] = ' '.join(sbmtm)
         lda_text[i] = processed_text
-        sbmtm_text[i] = processed_text 
-        if 'theater' in j:
-            category = 'theater'
-        elif 'plants' in j:
-            category = 'plants'
-        elif 'computer' in j:
-            category = 'computer'
-        elif 'customs' in j or 'abfnotices' in j:
-            category = 'customs'
-        else:
-            category = 'unknown'
+        sbmtm_text[i] = processed_text
+        category = get_category(j)
         metadata = i + '...' + category + '...N/A...dec...doc2vec'
         preprocessed_text[metadata] = ' '.join(sbmtm)
         metadata = i + '...' + category + '...N/A...dec...lda'
         preprocessed_text[metadata] = processed_text
-    output_file = os.path.abspath(os.path.join(path_this_file,'..', 'data/processed/preprocessed_text.txt'))
-    json.dump(preprocessed_text, open(output_file,'w'))
+    output_file = os.path.abspath(os.path.join(path_this_file, \
+                                               '..', \
+                                               'data/processed/preprocessed_text.txt'))
+    json.dump(preprocessed_text, open(output_file, 'w'))
     print('finished preprocessing deception files')
-          
-def preproces_local_context_files():  
+
+def preproces_local_context_files():
+    """ preprocess local context files """
     print('start preprocessing local context files')
-    #cwd = os.getcwd()
-    
-    path_this_file = os.path.dirname(os.path.abspath(__file__))    
-    path_local_files = os.path.abspath(os.path.join(path_this_file,'..', 'data/raw/local_context'))
+    path_this_file = os.path.dirname(os.path.abspath(__file__))
+    path_local_files = os.path.abspath(os.path.join(path_this_file, '..', 'data/raw/local_context'))
     local_files = glob.glob(path_local_files + '/**/*.docx', recursive=True)
     print(len(local_files))
-    output_file = os.path.abspath(os.path.join(path_this_file,'..', 'data/processed/preprocessed_text.txt'))
-    
-    nlp = spacy.load("en_core_web_sm") #!python -m spacy donwload en_core_web_sm, we use the "en_core_web_sm" model of Spacy, because there is (currently) a bug in "en_core_web_lg" to select stop words.
-    nlp.add_pipe(EntityRetokenizeComponent(nlp))
+    output_file = os.path.abspath(os.path.join(path_this_file, \
+                                               '..', \
+                                               'data/processed/preprocessed_text.txt'))
 
     with open(output_file) as file:
         preprocessed_text = json.load(file)
-        
+
     for count, i in enumerate(local_files):
-        if count % 100 == 0: print(count, ' of ', len(local_files))
-        try: 
+        if count % 100 == 0:
+            print(count, ' of ', len(local_files))
+        try:
             doc = docx.Document(i)
-            fullText = []
+            full_text = []
             for para in doc.paragraphs:
-                fullText.append(para.text)
-            j = '\n'.join(fullText)        
-            j = j.lower()
-            tokens = nlp(j)
-            processed_text = []
-            for ar in tokens.sents:
-                ar = str(ar)
-                x = nlp(ar)
-                art = []
-                for token in x:
-                    if token.pos_ != 'PUNCT' and token.pos_ != 'NUM':
-                        if token.is_stop == False and len(token)>2 and '\n' not in token.lemma_: #remove stopwords short characters
-                            art.append(str(token.lemma_)) #lemmatisation
-                processed_text.append(art)
+                full_text.append(para.text)
+            j = '\n'.join(full_text)
+            processed_text = nlp_preprocess_steps(j)
             sbmtm = [item for sublist in processed_text for item in sublist]
-            if 'theater' in i:
-                category = 'theater'
-            elif 'plants' in i:
-                category = 'plants'
-            elif 'computer' in i:
-                category = 'computer'
-            elif 'customs' in i or 'abfnotices' in i:
-                category = 'customs'
-            else:
-                category = 'unknown'
+            category = get_category(i)
             metadata = i + '...' + category + '...1...local...doc2vec'
             preprocessed_text[metadata] = ' '.join(sbmtm)
             metadata = i + '...' + category + '...1...local...lda'
             preprocessed_text[metadata] = processed_text
-        except: 
+        except:
             print('skip: ', i)
-    
-    output_file = os.path.abspath(os.path.join(path_this_file,'..', 'data/processed/preprocessed_text.txt'))
+
+    output_file = os.path.abspath(os.path.join(path_this_file, \
+                                               '..', \
+                                               'data/processed/preprocessed_text.txt'))
     json.dump(preprocessed_text, open(output_file, 'w'))
-    print('finished preprocessing local context files')    
+    print('finished preprocessing local context files')
 
 if __name__ == "__main__":
     preprocess_deception_files()
