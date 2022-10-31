@@ -42,10 +42,6 @@ def categorise():
     df_comb.loc[df_comb['local_context_file'].str.contains('theater'), \
            'category_local_context_file'] = 'theater'
 
-    #remove all the templates and tests
-    df_comb = df_comb[~df_comb.deception_file.str.contains("template")]
-    df_comb = df_comb[~df_comb.deception_file.str.contains("test")]
-    df_comb = df_comb[~df_comb.deception_file.str.contains("I_fucking_can_fly")]
     df_comb = df_comb[~df_comb.local_context_file.str.contains("template")]
     return df_comb
 
