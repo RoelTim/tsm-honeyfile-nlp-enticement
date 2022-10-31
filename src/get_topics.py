@@ -25,7 +25,6 @@ def categorise():
     local_files = glob.glob(local_context_file_path + '/**/*.docx', recursive=True)
     deception_file_path = os.path.abspath(os.path.join(path_this_file, '..', 'data/raw/honeyfiles'))
     dec_files = glob.glob(deception_file_path + '/**/*.docx', recursive=True)
-
     combinations = list(itertools.product(dec_files, local_files))
     df_comb = pd.DataFrame(data=combinations, columns=['deception_file', 'local_context_file'])
     df_comb["category_local_context_file"] = np.nan
@@ -41,7 +40,6 @@ def categorise():
            'category_local_context_file'] = 'computer'
     df_comb.loc[df_comb['local_context_file'].str.contains('theater'), \
            'category_local_context_file'] = 'theater'
-
     return df_comb
 
 def divide_chunks(full_list, nr_chunks):

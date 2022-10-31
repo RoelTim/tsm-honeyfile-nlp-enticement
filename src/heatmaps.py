@@ -1,4 +1,5 @@
-import pandas as pd, numpy as np
+import pandas as pd
+import numpy as np
 
 def frame(ind, axs):
     """add a black frame around all the heatmaps"""
@@ -18,7 +19,7 @@ def frame(ind, axs):
 def score_dataframe(score, topics, dec_paths):
     categories_vector = []
     for key, value in topics.items():
-        categories_vector.extend([key]*len(value))
+        categories_vector.extend([key] * len(value))
     score_df = pd.DataFrame(score, index = categories_vector, columns = dec_paths)
     score_df["categories_local_context"] = categories_vector
     score_df = score_df.melt(id_vars=["categories_local_context"], var_name=["dec_paths"], value_name = 'score')
@@ -33,7 +34,7 @@ def score_dataframe(score, topics, dec_paths):
     score_df.loc[score_df['dec_paths'].str.contains('gpt_variant2'), 'method'] = 'normal'
     score_df.loc[score_df['dec_paths'].str.contains('gpt_variant1'), 'method'] = 'normal'
     score_df.loc[score_df['dec_paths'].str.contains('unknown'), 'method'] = 'unknown'
-    score_df = score_df[~score_df.dec_paths.str.contains("unknown")]    
+    score_df = score_df[~score_df.dec_paths.str.contains("unknown")]
     return score_df
                  
 def select_data(gen_method, score, topics, dec_paths, categories, p, sm, n, perc, i, matrix):
