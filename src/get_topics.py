@@ -42,7 +42,6 @@ def categorise():
     df_comb.loc[df_comb['local_context_file'].str.contains('theater'), \
            'category_local_context_file'] = 'theater'
 
-    df_comb = df_comb[~df_comb.local_context_file.str.contains("template")]
     return df_comb
 
 def divide_chunks(full_list, nr_chunks):
