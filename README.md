@@ -18,7 +18,6 @@ Run the following script subsequently:
 
 ```bash
 python src/preprocess_files.py
-python src/categorise_local_context_files.py
 python src/get_topics.py
 python src/tsm.py
 ```
