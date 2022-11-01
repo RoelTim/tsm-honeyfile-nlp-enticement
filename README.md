@@ -39,10 +39,6 @@ The breakdown of the honeyfile data set:
 | **DPT**           | 100           | 20           | 20            | 20           | 160           |
 | **Total**         | 303           | 65           | 65            | 65           |               |
 
-And the breakdown of the corresponding local context data set:
-
-
-
 ## Citation 
 
 If you find our code useful, please cite our paper: 
