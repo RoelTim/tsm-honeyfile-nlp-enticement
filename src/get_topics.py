@@ -84,7 +84,7 @@ def top_n_words(nr_of_top_words, \
             most_common_words = sorted_words[0:nr_of_top_words]
             top_words.append(most_common_words)
         all_top_words[cat] = top_words
-        return all_top_words
+    return all_top_words
 
 def lda_topic_model(local_context_files, preprocessed_text):
     """ LDA topic words for Local Context """
@@ -159,6 +159,7 @@ def get_topics():
         as file:
             preprocessed_text = json.load(file)
 
+        #### top 50 words ####
         nr_of_top_words = 50
         all_top_words = top_n_words(nr_of_top_words, \
                                     local_context_files, \
@@ -173,7 +174,8 @@ def get_topics():
                   str(nr_files_per_local_context) + \
                   'dict_', 'w') as file:
             json.dump(all_top_words, file)
-
+        
+        #### LDA topic model ####
         topics_of_local_context = lda_topic_model(local_context_files, \
                                                   preprocessed_text)
 
