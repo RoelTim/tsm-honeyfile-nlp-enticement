@@ -31,10 +31,7 @@ def score_dataframe(score, topics, dec_paths):
     score_df.loc[score_df['dec_paths'].str.contains('lorem'), 'method'] = 'lorem'
     score_df.loc[score_df['dec_paths'].str.contains('pos_words'), 'method'] = 'normal'
     score_df.loc[score_df['dec_paths'].str.contains('dependency_parsed_tokens'), 'method'] = 'normal'
-    score_df.loc[score_df['dec_paths'].str.contains('gpt_variant2'), 'method'] = 'normal'
-    score_df.loc[score_df['dec_paths'].str.contains('gpt_variant1'), 'method'] = 'normal'
-    score_df.loc[score_df['dec_paths'].str.contains('unknown'), 'method'] = 'unknown'
-    score_df = score_df[~score_df.dec_paths.str.contains("unknown")]
+    score_df.loc[score_df['dec_paths'].str.contains('gpt'), 'method'] = 'normal'
     return score_df
                  
 def select_data(gen_method, score, topics, dec_paths, categories, p, sm, n, perc, i, matrix):
