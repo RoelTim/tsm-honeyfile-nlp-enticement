@@ -39,6 +39,15 @@ The breakdown of the honeyfile data set:
 | **DPT**           | 100           | 20           | 20            | 20           | 160           |
 | **Total**         | 303           | 65           | 65            | 65           |               |
 
+The breakdown of the corresponding local context data set:
+| Category Local Context | Number|
+| ---------------------- | ----- |
+| Australian Customs Notices | 1460 |
+| Papers about ‘Theater’ | 100|
+| Papers about ‘Computer Architecture’ | 100|
+| Papers about ‘Plants’ | 140|
+| Total                  | 1800  |
+
 ## Citation 
 
 If you find our code useful, please cite our paper: 
